@@ -1,1 +1,3 @@
-# TimeOntologyInSHACL
+# Time Ontology in SHACL
+
+This repository includes...
