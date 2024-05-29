@@ -1,10 +1,10 @@
 # Time Ontology in SHACL
 <p>
-This repository contains the SHACL shapes (file <i>timeSHACLshapes.ttl</i>i>) and the SHACL-SPARQL rules (file <i>timeSHACLrules.ttl</i>i>) introduced and described in the paper "On the interplay between validation and inference in SHACL - an investigation on the Time Ontology", submitted to the <a href="https://www.semantic-web-journal.net">Semantic Web journal</a>.
+This repository contains the SHACL shapes (file <i>timeSHACLshapes.ttl</i>) and the SHACL-SPARQL rules (file <i>timeSHACLrules.ttl</i>) introduced and described in the paper "On the interplay between validation and inference in SHACL - an investigation on the Time Ontology", submitted to the <a href="https://www.semantic-web-journal.net">Semantic Web journal</a>.
 </p>
 
 <p>
-The shapes and the rules have been designed on the version of the <a href="https://www.w3.org/TR/owl-time">Time Ontology</a> retrieved on 1st June 2024. A copy of this version is available on this GitHub repository (file <i>time.ttl</i>i>); of course, subsequent versions of the Time Ontology could not be compatible with the implementation proposed here.
+The shapes and the rules have been designed on the version of the <a href="https://www.w3.org/TR/owl-time">Time Ontology</a> retrieved on 1st June 2024. A copy of this version is available on this GitHub repository (file <i>time.ttl</i>); of course, subsequent versions of the Time Ontology could not be compatible with the implementation proposed here.
 </p>
 
 <p>
