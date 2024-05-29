@@ -15,7 +15,7 @@ Three Java files are available on this GitHub to execute the shapes and the rule
   <li><i>generateAllensCompositionTableOn2ProperIntervals.java</i> (in the subfolder <i>SyntheticDatasetGenerators</i>), which generates the composition table of Allen's temporal algebra and prints it in the output 
     file <i>AllenIntervalAlgebraCompositionTable.txt</i>.</li>
   <li><i>generateAllensTemporalRelationsOn2ProperIntervals.java</i> (in the subfolder <i>SyntheticDatasetGenerators</i>), which generates and validates all possible knowledge graphs involving two properties 
-    denoting one of Allen's temporal relations and connecting the same pair of proper intervals. The results of the validation are then written in the file <i>validationResults.txt</i>.</li>
+    denoting one of Allen's temporal relations and connecting the same pair of proper intervals. The results of the validation are then written in the output file <i>validationResults.txt</i>.</li>
 </ul>
 The three Java files might be compiled and run on Windows through the files <i>compile.bat</i> and <i>run.bat</i> respectively.
 </p>
