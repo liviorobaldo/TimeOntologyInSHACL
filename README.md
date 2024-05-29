@@ -10,8 +10,8 @@ The shapes and the rules have been designed for the version of the <a href="http
 <p align="justify">
 Three Java files are available on this GitHub to execute the shapes and the rules:
 <ul>
-  <li><i>InferAndValidate.java</i>, which executes the shapes and the rules on the ABox in the file <i>ABox.ttl</i> and prints the result of the validation. The user is invited to add in the file <i>ABox.ttl</i> 
-    new RDF triples to test and "play with" the proposed shapes and rules.</li>
+  <li><i>InferAndValidate.java</i>, which executes the shapes and the rules on the ABox in the file <i>ABox.ttl</i> and prints the result of the validation. The user is invited to add to the file <i>ABox.ttl</i> 
+    new RDF triples for further testing and "playing with" the proposed shapes and rules.</li>
   <li><i>generateAllensCompositionTableOn2ProperIntervals.java</i> (in the subfolder <i>SyntheticDatasetGenerators</i>), which generates the composition table of Allen's temporal algebra and prints it in the output 
     file <i>AllenIntervalAlgebraCompositionTable.txt</i>.</li>
   <li><i>generateAllensTemporalRelationsOn2ProperIntervals.java</i> (in the subfolder <i>SyntheticDatasetGenerators</i>), which generates and validates all possible knowledge graphs involving two properties 
