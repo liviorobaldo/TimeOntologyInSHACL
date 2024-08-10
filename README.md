@@ -8,6 +8,10 @@ The shapes and the rules have been designed for the version of the <a href="http
 </p>
 
 <p align="justify">
+  parasites
+</p>
+  
+<p align="justify">
 Three Java files are available on this GitHub to execute the shapes and the rules:
 <ul>
   <li><i>InferAndValidate.java</i>, which executes the shapes and the rules on the ABox in the file <i>ABox.ttl</i> and prints the result of the validation. The user is invited to add to the file <i>ABox.ttl</i> 
