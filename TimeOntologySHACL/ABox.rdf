@@ -1,0 +1,37 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#The interval :i1 is invalid: it ends before it starts.
+:i1 time:hasBeginning :b1.
+:i1 time:hasEnd :e1.
+:b1 time:inXSDDateTime "2025-01-01T00:00:00Z"^^xsd:dateTime.
+:e1 time:inXSDDateTime "2023-01-01T00:00:00Z"^^xsd:dateTime.
+
+
+#:i2 is also invalid: if :e1 occurs inside the interval, then it must occur after :b1.
+:i2 time:hasBeginning :b1.
+:i2 time:inside :e1.
+
+
+#:i3 is invalid because it overlaps with :i4 but :i4 ends before :i3 begins.
+:i3 time:intervalOverlaps :i4.
+:i3 time:hasBeginning :b2.
+:i4 time:hasEnd :e2.
+:b2 time:inXSDDateTime "2024-01-01T00:00:00Z"^^xsd:dateTime.
+:e2 time:inXSDDateTime "2022-01-01T00:00:00Z"^^xsd:dateTime.
+
+
+#Allen's temporal relations among four intervals.
+:pi1 time:intervalOverlaps :pi2.
+:pi2 time:intervalFinishes :pi3.
+:pi3 time:intervalMetBy :pi4.
+#:pi4 time:intervalDuring :pi1.#by adding this triple, the knowledge graph is still valid.
+:pi4 time:intervalContains :pi1.#by adding this triple, the knowledge graph becomes invalid.
+

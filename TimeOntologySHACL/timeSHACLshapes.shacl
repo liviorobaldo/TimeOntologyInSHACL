@@ -1,0 +1,261 @@
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+#This individual defines all prefixes used in at least one sh:sparql clauses of the SHACL shapes below.
+:PrefixesEmbeddedSHsparql sh:declare 
+	[sh:prefix"rdf";sh:namespace"http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI],
+	[sh:prefix"rdfs";sh:namespace"http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI],
+	[sh:prefix"xsd";sh:namespace"http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI],
+	[sh:prefix"time";sh:namespace"http://www.w3.org/2006/time#"^^xsd:anyURI],
+	[sh:prefix"";sh:namespace"http://robaldoandbatsakis/timeontologyshacl#"^^xsd:anyURI].
+
+
+##############################################################################################################################################
+#
+#	SHACL shapes on the datatype property time:inXSDDateTime. This property relates time:Instant(s) with xsd:dateTime values.
+#	The shapes below check that:
+#		- The objects of inXSDDateTime are indeed values of the datatype xsd:dateTime.
+#		- These xsd:dateTime values always specify the timezone.
+#		- If a time:Instant occurs as subject of two different instances of the datatype property inXSDDateTime, the xsd:dateTime 
+#		  values as object of these two instances are the same.
+#
+##############################################################################################################################################
+
+#SHACL shape checking that the value of all time:inXSDDateTime datatype properties is xsd:dateTime and that this specifies the timezone.
+[rdf:type sh:NodeShape;
+	sh:targetObjectsOf time:inXSDDateTime;
+	sh:datatype xsd:dateTime;
+	sh:message "Invalid datatype: xsd:dateTime is required"].
+	
+[rdf:type sh:NodeShape ;
+    sh:targetObjectsOf time:inXSDDateTime ;
+    sh:pattern "(Z|(\\+|-)[0-9]{2}:[0-9]{2})$" ;
+    sh:message "Invalid datatype: it does not specify the timezone."].
+
+#SHACL shape checking that all time:inXSDDateTime values defined on a same time:Instant are the same.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:inXSDDateTime;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?dt1 ?dt2
+					 WHERE{$this time:inXSDDateTime ?dt1. $this time:inXSDDateTime ?dt2. FILTER(?dt1!=?dt2).}""";
+		sh:message "Invalid Instant {$this}: two different xsd:dateTime values are associated with it: {?dt1} and {?dt2}."]].
+
+
+##############################################################################################################################################
+#
+#	SHACL shapes on the properties time:hasBeginning and time:hasEnd. These properties relate time:TemporalEntity(s) with time:Instant(s).
+#
+##############################################################################################################################################
+
+#SHACL shape checking that a time:TemporalEntity does not begin at two different xsd:dateTime values.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasBeginning;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?dt1 ?dt2
+					 WHERE{$this time:hasBeginning/time:inXSDDateTime ?dt1.
+						   $this time:hasBeginning/time:inXSDDateTime ?dt2.
+						   FILTER(?dt1!=?dt2)}""";
+		sh:message "Invalid TemporalEntity {$this}: it begins at two different xsd:dateTime values: {?dt1} and {?dt2}."]].
+
+#SHACL shape checking that a time:TemporalEntity does not end at two different xsd:dateTime values.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasEnd;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?dt1 ?dt2
+					 WHERE{$this time:hasEnd/time:inXSDDateTime ?dt1.
+						   $this time:hasEnd/time:inXSDDateTime ?dt2.
+						   FILTER(?dt1!=?dt2)}""";
+		sh:message "Invalid TemporalEntity {$this}: it ends at two different xsd:dateTime values: {?dt1} and {?dt2}."]].
+
+#SHACL shape checking that a time:TemporalEntity does not end *before* it begins.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasBeginning;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?dtb ?dte
+					 WHERE{$this time:hasBeginning/time:inXSDDateTime ?dtb.
+						   $this time:hasEnd/time:inXSDDateTime ?dte.
+						   FILTER(?dte<?dtb)}""";
+		sh:message "Invalid TemporalEntity {$this}: it ends at {?dte} but it begins at {?dtb}."]].
+
+
+##############################################################################################################################################
+#
+#	SHACL shapes on the property time:before, which relates time:TemporalEntity(s) with time:TemporalEntity(s).
+#
+##############################################################################################################################################
+
+#SHACL shape checking that the knowledge graph does not contain a chain of time:before properties (including, optionally, also the properties 
+#time:hasBeginning and time:hasEnd) between two xsd:dateTime values that do not comply with the temporal order denoted by time:before.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?i ?dt1 ?dt2
+					 WHERE{$this time:before ?i.
+						   $this(^time:before|^time:hasBeginning|^time:hasEnd)*/time:inXSDDateTime ?dt1. 
+						   ?i(time:before|time:hasBeginning|time:hasEnd)*/time:inXSDDateTime ?dt2.
+						   FILTER(?dt1>=?dt2)}""";
+		sh:message "Invalid triple '{$this} time:before {?i}': it connects the xsd:dateTime values {?dt1} and {?dt2}."]].
+
+#SHACL shape invalidating cycling chain of properties including at least one time:before (and, optionally, time:hasBeginning and time:hasEnd).
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?i
+					 WHERE{$this time:before ?i.
+						   ?i (time:before|time:hasBeginning|time:hasEnd)+ $this}""";
+		sh:message "Invalid triple '{$this} time:before {?i}': it is part of a cycling path."]].
+
+
+#SHACL shape invalidating time:TemporalEntity(s) that end before they begin.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?te
+					 WHERE{$this time:before/(time:before|time:hasBeginning|time:hasEnd)* ?t.
+						   ?te time:hasEnd $this. ?te time:hasBeginning ?t}""";
+		sh:message "Invalid TemporalEntity {?te}: it ends before it begins."]].
+
+
+##############################################################################################################################################
+#
+#	SHACL shapes on the property time:inside. This property relates time:Interval(s) with time:Instant(s).
+#
+##############################################################################################################################################
+
+#The following SHACL shape checks that the subject of time:inside is not an instance of time:Instant.
+#This SHACL shape is no longer needed if the rdfs:domain of time:inside would be time:ProperInterval rather than time:Interval.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:inside ;
+	sh:not[sh:class time:Instant];
+	sh:message "Invalid Interval {$this}: the Interval as subject of the property 'inside' is also an Instant. Nevertheless, instants cannot (properly) contain other instants."].
+
+
+
+
+##############################################################################################################################################
+#
+#	SHACL shapes on time:ProperInterval.
+#
+##############################################################################################################################################
+
+#SHACL shape checking that no individual is an instance of both time:Instant and time:ProperInterval.
+#NB. This shape corresponds to OWL axiom "time:ProperInterval owl:disjointWith time:Instant"
+[rdf:type sh:NodeShape;
+	sh:targetClass time:Instant;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this
+					 WHERE{$this rdf:type time:ProperInterval}""";
+		sh:message "Invalid individual '{$this}': it belongs to both classes Instant and ProperInterval but the two classes are disjoint."]].
+
+
+##############################################################################################################################################
+#
+#	SHACL shapes on the properties denoting Allen's temporal relations. These shapes are rather limited in number because most of the 
+#	work is done by the SHACL-SPARQL rules.
+#
+##############################################################################################################################################
+
+#---------------------------------------------------------------------------------------------------------------------------------------------
+# Specific SHACL shapes on time:intervalIn 
+#---------------------------------------------------------------------------------------------------------------------------------------------
+
+#SHACL shape invalidating two time:ProperInterval(s) connected by time:intervalIn such that the time:ProperInterval as subject of 
+#time:intervalIn begins before the time:ProperInterval as its object.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalIn;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?pi
+					 WHERE{$this time:intervalIn ?pi. $this time:hasBeginning ?b1. ?pi time:hasBeginning ?b2.
+						   {?b1 time:inXSDDateTime ?dt1. ?b2 time:inXSDDateTime ?dt2. FILTER(?dt1<?dt2)}UNION
+						   {?b1 time:before ?b2}}""";
+		sh:message "Invalid triple '{$this} time:intervalIn {?pi}': {$this} begins before {?pi}."]].
+
+#SHACL shape invalidating two time:ProperInterval(s) connected by time:intervalIn such that the time:ProperInterval as object of 
+#time:intervalIn ends before the time:ProperInterval as its subject.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalIn;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?pi
+					 WHERE{$this time:intervalIn ?pi. $this time:hasEnd ?e1. ?pi time:hasEnd ?e2.
+						   {?e1 time:inXSDDateTime ?dt1. ?e2 time:inXSDDateTime ?dt2. FILTER(?dt1>?dt2)}UNION
+						   {?e2 time:before ?e1}}""";
+		sh:message "Invalid triple '{$this} time:intervalIn {?pi}': {$this} ends after {?pi}."]].
+	
+
+#---------------------------------------------------------------------------------------------------------------------------------------------
+# Specific SHACL shapes on time:intervalDisjoint
+#---------------------------------------------------------------------------------------------------------------------------------------------
+
+#SHACL shape invalidating two time:ProperInterval(s) connected by time:intervalDisjoint such that there is a time:Instant ?i
+#that belongs to both time:ProperInterval(s).
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalDisjoint;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?pi ?i
+					 WHERE{$this time:intervalDisjoint ?pi.
+						   $this (time:hasBeginning|time:hasEnd|time:inside)+ ?i.
+						   ?pi (time:hasBeginning|time:hasEnd|time:inside)+ ?i}""";
+		sh:message "Invalid triple '{$this} time:intervalDisjoint {?pi}': the instant {?i} belongs to both {$this} and {?pi}."]].
+
+#SHACL shape invalidating two time:ProperInterval(s) connected by time:intervalDisjoint such that there are two time:Instant(s) ?i2 and ?i2,
+#respectively belonging to either time:ProperInterval but associated with the same xsd:dateTime value.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalDisjoint;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?pi ?i1 ?i2
+					 WHERE{$this time:intervalDisjoint ?pi.
+						   $this (time:hasBeginning|time:hasEnd|time:inside)+ ?i1.
+						   ?pi (time:hasBeginning|time:hasEnd|time:inside)+ ?i2.
+						   ?i1 time:inXSDDateTime ?dt1. ?i2 time:inXSDDateTime ?dt2. FILTER(?dt1=?dt2)}""";
+		sh:message "Invalid triple '{$this} time:intervalDisjoint {?pi}': the instants {?i1} and {?i2}, each of which belongs to one of the two intervals, denote the same xsd:dateTime value."]].
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------
+# SHACL shapes on the property :oneOf (to check Allen's temporal relations)
+#---------------------------------------------------------------------------------------------------------------------------------------------
+
+#The rules implementing Allen's composition table calculate all possible properties, denoting each one of Allen's temporal relation, between two proper intervals
+#in one direction. This set is represented by the reification of the property :hasPossibleATR; the members of the set are connected to the reification through 
+#the property :oneOf. Therefore, if there are *two* reifications of :hasPossibleATR between the *same* pairs of intervals in the *same* direction, it means that 
+#there are *two* sets of possible properties. If these sets have no element in common, no property is possible among them, but there should be at least one, so
+#the knowledge graph is invalid.
+#The clause "FILTER(?pi1!=?pi2)" is added to avoid this shape to also invalidate cycling paths where the only possible inferred relation is time:intervalEquals;
+#these are already invalidated by the final shape below, so there is no need to also invalidate them with this shape.
+[rdf:type sh:NodeShape;
+	sh:targetClass rdf:Statement;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?pi1 ?pi2
+					 WHERE{$this rdf:subject ?pi1; rdf:predicate :hasPossibleATR; rdf:object ?pi2.
+						   ?hpatr rdf:subject ?pi1; rdf:predicate :hasPossibleATR; rdf:object ?pi2.
+						   NOT EXISTS{$this :oneOf ?atr. ?hpatr :oneOf ?atr} FILTER(?pi1!=?pi2)}""";
+		sh:message "Invalid knowledge graph: no Allen's temporal relation can exist between {?pi1} and {?pi2}, given the Allen's temporal relations already asserted in the graph."]].
+
+#This shape is reported on the paper; however, the previous one is more general and also cover for the validation checks performed by this one.
+#Therefore, we comment this shape to avoid multiple messages for the same invalid triples.
+#[rdf:type sh:NodeShape;
+#	sh:targetClass rdf:Statement;
+#	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+#		sh:select """SELECT $this ?pi1 ?atr ?pi2
+#					 WHERE{$this rdf:subject ?pi1; rdf:object ?pi2.
+#						   ?pi1 ?atr ?pi2. FILTER(strStarts(str(?atr), "http://www.w3.org/2006/time#interval")) NOT EXISTS{$this :oneOf ?atr}}""";
+#		sh:message "Invalid triple '{?pi1} {?atr} {?pi2}': {?pi1} and {?pi2} cannot be connected through {?atr}, given the other Allen's temporal relations #connecting them."]].
+		
+		
+#Finally, if there is a cycling path of properties denoting Allen's temporal relations, i.e., a time:ProperInterval connected through itself through a chain 
+#of properties denoting Allen's temporal relations, the only possible property between the time:ProperInterval and itself is time:intervalEquals, which must 
+#be therefore listed among the properties connected through :oneOf to the reification.
+[rdf:type sh:NodeShape;
+	sh:targetClass rdf:Statement;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?pi
+					 WHERE{$this rdf:subject ?pi; rdf:predicate :hasPossibleATR; rdf:object ?pi. NOT EXISTS{$this :oneOf time:intervalEquals}}""";
+		sh:message "Invalid ProperInterval {?pi}: it is connected to itself through a cycling path of Allen's temporal relations but these do not allow for time:intervalEquals between {?pi} and itself."]].
+
+
+
+
+
