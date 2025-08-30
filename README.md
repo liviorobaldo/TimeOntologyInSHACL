@@ -8,11 +8,11 @@ The shapes and rules have been designed based on the version of the <a href="htt
 </p>
 
 <p align="justify">
-The current axiomatization of the Time Ontology is expressed in <a href="https://www.w3.org/OWL">OWL</a>. Since this work focuses on <a href="https://www.w3.org/TR/shacl">SHACL</a> rather than OWL, the repository separates the RDF model (stored in <i>TimeOntologySHACL/time.rdf</i>) from the OWL axioms (stored in <i>TimeOntologySHACL/owlAxioms.owl</i>). Users can apply the OWL axioms with <a href="http://www.hermit-reasoner.com">HermiT</a> by using the file <i>InferThroughOWL.java</i>.
+The current axiomatization of the Time Ontology is expressed in <a href="https://www.w3.org/OWL">OWL</a>. Since this work focuses on <a href="https://www.w3.org/TR/shacl">SHACL</a> rather than OWL, the repository separates the RDF model (stored in <i>TimeOntologySHACL/time.rdf</i>) from the OWL axioms (stored in <i>TimeOntologySHACL/owlAxioms.owl</i>).
 </p>
-  
+
 <p align="justify">
-Three Java files are available on this GitHub to execute the shapes and the rules:
+Users who wish to apply the OWL axioms can do so with <a href="http://www.hermit-reasoner.com">HermiT</a> by using the file <i>InferThroughOWL.java</i>. In contrast, three Java files are provided in this GitHub repository to execute the SHACL shapes and SHACL-SPARQL rules on <i>TimeOntologySHACL/time.rdf</i>:
 <ul>
   <li><i>InferAndValidateThroughSHACL.java</i>, which executes the shapes and the rules on the ABox in the file <i>TimeOntologySHACL/ABox.rdf</i> and prints the result of the validation. The user is invited to add to the file <i>ABox.rdf</i> new RDF triples for further testing and "playing with" the proposed shapes and rules.</li>
   <li><i>SyntheticDatasetGenerators/generateAllensCompositionTableOn2ProperIntervals.java</i>, which generates the composition table of Allen's temporal algebra and prints it in the output 
