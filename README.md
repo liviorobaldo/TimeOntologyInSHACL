@@ -12,7 +12,7 @@ The current axiomatization of the Time Ontology is expressed in <a href="https:/
 </p>
 
 <p align="justify">
-Users who wish to apply the OWL axioms can do so with <a href="http://www.hermit-reasoner.com">HermiT</a> by using the file <i>InferThroughOWL.java</i>, whereas three Java files are provided in this GitHub repository to execute the SHACL shapes and SHACL-SPARQL rules on <i>TimeOntologySHACL/time.rdf</i>:
+Users who wish to apply the OWL axioms can do so with <a href="http://www.hermit-reasoner.com">HermiT</a> using the file <i>InferThroughOWL.java</i>, whereas the following Java files are provided to execute the SHACL shapes and SHACL-SPARQL rules on <i>TimeOntologySHACL/time.rdf</i>:
 <ul>
   <li><i>InferAndValidateThroughSHACL.java</i>, which executes the shapes and the rules on the ABox in the file <i>TimeOntologySHACL/ABox.rdf</i> and prints the result of the validation. The user is invited to add to the file <i>ABox.rdf</i> new RDF triples for further testing and "playing with" the proposed shapes and rules.</li>
   <li><i>SyntheticDatasetGenerators/generateAllensCompositionTableOn2ProperIntervals.java</i>, which generates the composition table of Allen's temporal algebra and prints it in the output 
