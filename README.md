@@ -8,7 +8,7 @@ The shapes and rules have been designed based on the version of the <a href="htt
 </p>
 
 <p align="justify">
-The current axiomatization of the Time Ontology is in <a href="https://www.w3.org/OWL">OWL</a>. Since this work focuses on <a href="https://www.w3.org/TR/shacl">SHACL</a> rather than OWL, this repository separates the RDF model (stored in <i>TimeOntologySHACL/time.rdf</i>) from the OWL axioms (stored in <i>TimeOntologySHACL/owlAxioms.owl</i>). Users can apply the OWL axioms using <a href="http://www.hermit-reasoner.com">HermiT</a> with the file <i>InferThroughOWL.java</i>.
+The current axiomatization of the Time Ontology is expressed in <a href="https://www.w3.org/OWL">OWL</a>. Since this work focuses on <a href="https://www.w3.org/TR/shacl">SHACL</a> rather than OWL, the repository separates the RDF model (stored in <i>TimeOntologySHACL/time.rdf</i>) from the OWL axioms (stored in <i>TimeOntologySHACL/owlAxioms.owl</i>). Users can apply the OWL axioms with <a href="http://www.hermit-reasoner.com">HermiT</a> by using the file <i>InferThroughOWL.java</i>.
 </p>
   
 <p align="justify">
