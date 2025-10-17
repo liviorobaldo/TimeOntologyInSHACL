@@ -1,0 +1,22 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This knowledge graph is invalid, as correctly detected by our SHACL axiomatization.
+#The SHACL-SPARQL rules that implement the first-order logic axioms associated with time:intervalStarts infer that the beginning of abox:i1
+#is equal to the beginning of abox:i2 (i.e., abox:b2). Since abox:i1 is an instance of the class time:ProperInterval, the defining axiom
+#of this class (axiom "6." in Table 3) infers that the beginning of abox:i1 occurs before its end, which is again abox:b2.
+#Now, because the beginning of abox:i1 is equal to abox:b2, axiom "5." in Table 2 infers that abox:b2 occurs before itself.
+#This is, of course, invalid, since the time:before property is anti-reflexive, as correctly detected by the corresponding SHACL-SPARQL shape.
+#Note that this invalid information also triggers further invalidations.
+
+abox:i1 time:intervalStarts abox:i2.
+abox:i2 time:hasBeginning abox:b2.
+abox:i1 time:hasEnd abox:b2.

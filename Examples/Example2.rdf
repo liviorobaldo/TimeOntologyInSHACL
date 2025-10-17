@@ -1,0 +1,24 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#The instants abox:i1 and abox:i2 are invalid because they are declared as equal, but their xsd:dateTime values differ.
+#Note that this invalid information also triggers further invalidations.
+abox:i1 time:inXSDDateTime "2025-01-01T00:00:00Z"^^xsd:dateTime.
+abox:i2 time:inXSDDateTime "2024-01-01T00:00:00Z"^^xsd:dateTime.
+abox:i1 time:equals abox:i2.
+
+#The instants abox:i3 and abox:i4 are invalid because the former occurs before the latter, but their xsd:dateTime values do not conform to this temporal order.
+#Note that this invalid information also triggers further invalidations.
+abox:i3 time:inXSDDateTime "2025-01-01T00:00:00Z"^^xsd:dateTime.
+abox:i4 time:inXSDDateTime "2024-01-01T00:00:00Z"^^xsd:dateTime.
+abox:i3 time:before abox:i4.
+
+

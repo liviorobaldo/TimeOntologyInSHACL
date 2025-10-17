@@ -1,0 +1,25 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This knowledge graph is invalid, as correctly detected by our SHACL axiomatization.
+#abox:i1 and abox:i2 are inferred to be instances of time:ProperInterval because they are connected by time:intervalAfter,
+#while abox:ii1 and abox:ii2 are inferred to be instances of time:Instant because they occur as the object of time:inside.
+#Two endpoints are created for abox:i1 and two more for abox:i2. Moreover, since the two proper intervals are related by time:intervalAfter,
+#it is inferred that the end of abox:i2 occurs before the beginning of abox:i1.
+#Furthermore, since abox:ii1 occurs inside abox:i1 and abox:ii2 occurs inside abox:i2, it is inferred that abox:ii2 occurs before abox:ii1.
+#However, this is incompatible with abox:ii2 time:hasBeginning abox:ii1, from which it follows that the two time:Instant instances are equal.
+#This results in abox:ii1 and abox:ii2 being inferred to occur before one another, which is then identified as invalid by the SHACL-SPARQL shapes.
+
+abox:i2 time:inside abox:ii2.
+abox:i1 time:inside abox:ii1.
+abox:i1 time:intervalAfter abox:i2.
+abox:ii2 time:hasBeginning abox:ii1.
+

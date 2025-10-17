@@ -1,0 +1,20 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This knowledge graph is invalid because the end of the time:TemporalEntity abox:T is asserted to occur before its beginning. 
+#It is correctly inferred as invalid: the SHACL-SPARQL rules corresponding to axioms 8 and 9 in Table 3 derive the triples:
+# - abox:te1 time:before abox:te1 
+# - abox:te2 time:before abox:te2
+#both of which violate the SHACL-SPARQL shape enforcing the anti-reflexivity of time:before.
+
+abox:T time:hasBeginning abox:te1.
+abox:T time:hasEnd abox:te2.
+abox:te2 time:before abox:te1.

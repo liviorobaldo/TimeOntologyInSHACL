@@ -1,0 +1,21 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#The time:Instant abox:i1 is invalid because it does not specify the timezone.
+abox:i1 time:inXSDDateTime "2025-01-01T00:00:00"^^xsd:dateTime.
+
+#The time:Instant abox:i2 is invalid, as it is associated with two different xsd:dateTime values.
+#Furthermore, since a time:Instant is inferred to both start and end at itself, abox:i2 is also reported to end before it starts.
+abox:i2 time:inXSDDateTime "2025-01-01T00:00:00Z"^^xsd:dateTime.
+abox:i2 time:inXSDDateTime "2024-01-01T00:00:00Z"^^xsd:dateTime.
+
+
+

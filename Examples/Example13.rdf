@@ -1,0 +1,22 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This knowledge graph is invalid, as correctly detected by our SHACL axiomatization.
+#Since i1 is related to i2 through time:intervalDuring, it is inferred that abox:i2's beginning occurs before abox:i1's beginning, 
+#and abox:i1's end occurs before abox:i2's end. Similarly, abox:i3's beginning occurs before abox:i2's beginning, and abox:i2's end occurs before abox:i3's end.
+#From this, the transitivity of time:before infers that abox:i1's end occurs before abox:i3's end. This is, of course, incompatible with the triple 
+#"abox:i1 time:after abox:i3", from which it is derived that both endpoints of abox:i3 occur before both endpoints of abox:i1. 
+#Therefore, a cycle of time:before properties is again inferred, which is subsequently identified as invalid by the SHACL-SPARQL shapes.
+
+abox:i1 time:intervalDuring abox:i2.
+abox:i2 time:intervalDuring abox:i3.
+abox:i1 time:after abox:i3.
+

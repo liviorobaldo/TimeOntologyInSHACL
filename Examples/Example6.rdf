@@ -1,0 +1,26 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This knowledge graph is invalid because the two time:TemporalEntity(s) abox:T1 and abox:T2, are asserted to be related by time:intervalEquals. Consequently, the axiom defined
+#on time:intervalEquals derive them as instances of time:ProperInterval as well as they are also related by the more abstract relation time:equals.
+#Then, the SHACL-SPARQL rules corresponding to axioms 6 and 7 in Table 2 infer that the beginnings and ends of one temporal entity are also the beginnings and ends of the other. #These are then inferred to be pairwise equal by the SHACL-SPARQL rules corresponding to axioms 4 and 5 in Table 3. However, since abox:te11 and abox:te21 are associated with
+#different xsd:dateTime values, the knowledge graph is detected as invalid.
+#Note that this invalid information also triggers further invalidations.
+
+abox:T1 time:hasBeginning abox:te11.
+abox:T1 time:hasEnd abox:te12.
+
+abox:T2 time:hasBeginning abox:te21.
+abox:T2 time:hasEnd abox:te22.
+
+abox:T1 time:intervalEquals abox:T2.
+abox:te11 time:inXSDDateTime "2025-01-01T00:00:00Z"^^xsd:dateTime.
+abox:te21 time:inXSDDateTime "2024-01-01T00:00:00Z"^^xsd:dateTime.

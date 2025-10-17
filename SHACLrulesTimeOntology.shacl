@@ -1,0 +1,297 @@
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+#defines all prefixes used in at least one sh:rule below
+:PrefixesEmbeddedSPARQLRules sh:declare 
+	[sh:prefix"rdf";sh:namespace"http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI],
+	[sh:prefix"rdfs";sh:namespace"http://www.w3.org/2000/01/rdf-schema#"^^xsd:anyURI],
+	[sh:prefix"xsd";sh:namespace"http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI],
+	[sh:prefix"time";sh:namespace"http://www.w3.org/2006/time#"^^xsd:anyURI],
+	[sh:prefix"";sh:namespace"http://robaldoandbatsakis/timeontologyshacl#"^^xsd:anyURI].
+
+
+##################################################################################################################################################################################
+#
+#	RDF schema inferences: rdfs:subclassOf, rdfs:domain, rdfs:range, and rdfs:subPropertyOf.
+#
+##################################################################################################################################################################################
+
+#The next four rules implement rdfs:subClassOf, rdfs:domain, rdfs:range, and rdfs:subPropertyOf.
+
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf rdfs:subClassOf;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?s rdf:type ?c}WHERE{$this rdfs:subClassOf+ ?c. ?s rdf:type $this}"""]].
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf rdfs:domain;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?s rdf:type ?c}WHERE{$this rdfs:domain ?c. ?s $this ?o}"""]].
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf rdfs:range;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?o rdf:type ?c}WHERE{$this rdfs:range ?c. ?s $this ?o}"""]].
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf rdfs:subPropertyOf;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?s ?p ?o}WHERE{$this rdfs:subPropertyOf ?p. ?s $this ?o}"""]].
+
+
+##################################################################################################################################################################################
+#
+#	Inverse relations
+#
+##################################################################################################################################################################################
+
+#The inverse of time:after is time:before (also the other way round, but it is unnecessary to encode the other way round).
+#∀T1,T2[after(T1,T2) → before(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:after;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:before $this}WHERE{$this time:after ?te}"""]].
+
+#The next six SHACL-SPARQL rules implement the inverse relations of the six primary Allen temporal relations.
+#∀T1,T2[intervalAfter(T1,T2) → intervalBefore(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalAfter;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:intervalBefore $this}WHERE{$this time:intervalAfter ?te}"""]].
+#∀T1,T2[intervalContains(T1,T2) → intervalDuring(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalContains;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:intervalDuring $this}WHERE{$this time:intervalContains ?te}"""]].
+#∀T1,T2[intervalMetBy(T1,T2) → intervalMeets(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalMetBy;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:intervalMeets $this}WHERE{$this time:intervalMetBy ?te}"""]].
+#∀T1,T2[intervalStartedBy(T1,T2) → intervalStarts(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalStartedBy;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:intervalStarts $this}WHERE{$this time:intervalStartedBy ?te}"""]].
+#∀T1,T2[intervalFinishedBy(T1,T2) → intervalFinishes(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalFinishedBy;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:intervalFinishes $this}WHERE{$this time:intervalFinishedBy ?te}"""]].
+
+
+##################################################################################################################################################################################
+#
+#	Rules implementing the algebraic properties of time:before and time:equals.
+#
+##################################################################################################################################################################################
+
+#Transitivity of time:before
+#∀T1,T2,T3[(before(T1,T2)∧before(T2,T3)) → before(T1,T3)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this time:before ?te2}WHERE{$this time:before ?te1. ?te1 time:before ?te2}"""]].
+		
+#Transitivity of time:equals.
+#∀T1,T2,T3[(equals(T1,T2)∧equals(T2,T3)) → equals(T1,T3)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:equals;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this time:equals ?te2}WHERE{$this time:equals ?te1. ?te1 time:equals ?te2}"""]].
+
+#Symmetry of time:equals.		
+#∀T1,T2[equals(T1,T2) → equals(T2,T1)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:equals;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:equals $this}WHERE{$this time:equals ?te}"""]].
+
+#The properties time:before, time:hasBeginning, time:hasEnd, and time:inside are preserved under substitution of time:equals in either of their arguments.
+#∀T1,T2,T3[((equals(T1,T2)∧before(T2,T3))∨(before(T1,T2)∧equals(T2,T3))) → before(T1,T3)]
+#∀T1,T2,T3[((equals(T1,T2)∧hasBeginning(T2,T3))∨(hasBeginning(T1,T2)∧equals(T2, T3))) → hasBeginning(T1,T3)]
+#∀T1,T2,T3[((equals(T1,T2)∧hasEnd(T2,T3))∨(hasEnd(T1,T2)∧equals(T2,T3))) → hasEnd(T1,T3)]
+#∀T1,T2,T3[((equals(T1,T2)∧inside(T2,T3))∨(inside(T1,T2)∧equals(T2,T3))) → inside(T1,T3)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:equals;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?T1 ?P ?T3}
+						WHERE{VALUES ?P {time:before time:hasBeginning time:hasEnd time:inside}
+							  {$this time:equals ?T2. ?T2 ?P ?T3. BIND($this AS ?T1)}UNION
+							  {$this time:equals ?T3. ?T1 ?P $this. BIND($this AS ?T2)}}"""]].
+
+
+##################################################################################################################################################################################
+#
+#	Rules relating time:TemporalEntity, time:Instant, and time:ProperInterval to their beginnings, ends, and contained instants (inside)
+#
+##################################################################################################################################################################################
+
+#The beginning and end of a time:TemporalEntity always exist. If the knowledge graph does not specify them, this rule creates two anonymous individuals, i.e., two Skolem terms 
+#representing the beginning and end of the time:TemporalEntity. However, if the temporal entity is an instance of time:Instant, both the beginning and the end are set to the 
+#instant itself. In all cases, the inferred beginning and end are asserted as instances of time:Instant to prevent infinite loops.
+#∀T[TemporalEntity(T) → ∃tb,te[hasBeginning(T,tb)∧hasEnd(T,te)]
+#∀t[Instant(t) → hasBeginning(t,t)]
+#∀t[Instant(t) → hasEnd(t,t)]
+[rdf:type sh:NodeShape;
+	sh:targetClass time:TemporalEntity;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this time:hasBeginning ?tb. $this time:hasEnd ?te. ?tb a time:Instant. ?te a time:Instant}
+						WHERE{OPTIONAL{$this time:hasBeginning ?tbopt} BIND(IF(EXISTS{$this a time:Instant},$this,IF(BOUND(?tbopt),?tbopt,BNode())) AS ?tb)
+							  OPTIONAL{$this time:hasEnd ?teopt} BIND(IF(EXISTS{$this a time:Instant},$this,IF(BOUND(?teopt),?teopt,BNode())) AS ?te)}"""]].
+
+#Every time:TemporalEntity that begins or ends at itself is a time:Instant.
+#The opposite implications are handled by the previous rule.
+#∀t[hasBeginning(t,t) → Instant(t)]
+#∀t[hasEnd(t,t) → Instant(t)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasBeginning;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this rdf:type time:Instant}WHERE{$this time:hasBeginning $this}"""]].
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasEnd;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this rdf:type time:Instant}WHERE{$this time:hasEnd $this}"""]].
+
+#If two time:TemporalEntity(s) begin at two time:Instant(s) (or end at two time:Instant(s)), then the two time:Instant(s) are the same.
+#∀T,t1,t2[(TemporalEntity(T)∧hasBeginning(T,t1)∧hasBeginning(T,t2)) → equals(t1,t2)]
+#∀T,t1,t2[(TemporalEntity(T)∧hasEnd(T,t1)∧hasEnd(T,t2)) → equals(t1,t2)]
+[rdf:type sh:NodeShape;
+	sh:targetClass time:TemporalEntity;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?t1 time:equals ?t2}
+						WHERE{$this ?p ?t1. $this ?p ?t2. VALUES ?p{time:hasBeginning time:hasEnd}}"""]].
+
+#If a time:ProperInterval has both its beginning and end defined, then the beginning occurs before the end.
+#∀T,tb,te[(ProperInterval(T)∧hasBeginning(T,tb)∧hasEnd(T,te)) → before(tb,te)]
+[rdf:type sh:NodeShape;
+	sh:targetClass time:ProperInterval;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?tb time:before ?te}
+						WHERE{$this rdf:type time:ProperInterval.
+							  $this time:hasBeginning ?tb. $this time:hasEnd ?te}"""]].
+
+#For every time:TemporalEntity, if another time:TemporalEntity occurs before its beginning, then it also occurs before its end.
+#Similarly, if it occurs after its end, it also occurs after its beginning.
+#∀T,tb,te,t[(TemporalEntity(T)∧hasBeginning(T,tb)∧hasEnd(T,te)∧before(t,tb)) → before(t,te)]
+#∀T,tb,te,t[(TemporalEntity(T)∧hasBeginning(T,tb)∧hasEnd(T,te)∧before(te,t)) → before(tb,t)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasBeginning;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?t time:before ?te}
+						WHERE{$this time:hasBeginning ?tb. $this time:hasEnd ?te. ?t time:before ?tb}"""]].
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:hasBeginning;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?tb time:before ?t}
+						WHERE{$this time:hasBeginning ?tb. $this time:hasEnd ?te. ?te time:before ?t}"""]].
+
+#If a time:TemporalEntity occurs before another, then its end occurs before the beginning of the other.
+#∀T1,T2,tb,te[(before(T1,T2)∧hasBeginning(T2,tb)∧hasEnd(T1,te)) → before(te,tb)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?te time:before ?tb}
+						WHERE{$this time:before ?T2. ?T2 time:hasBeginning ?tb. $this time:hasEnd ?te}"""]].
+
+
+##################################################################################################################################################################################
+#
+#	Rules on time:inside.
+#
+##################################################################################################################################################################################
+
+#If a time:Instant occurs inside a time:TemporalEntity, then the beginning occurs before the instant, and the instant occurs before the end.
+#NB: As before, the beginning and end are guaranteed to exist due to the axiom above using OPTIONAL and BIND.
+#∀T,t,tb,te[(inside(T,t)∧hasBeginning(T,tb)∧hasEnd(T,te)) → (before(tb,t)∧before(t,te))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:inside;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{?tb time:before ?t. ?t time:before ?te}
+						WHERE{$this time:inside ?t. $this time:hasBeginning ?tb. $this time:hasEnd ?te}"""]].
+						
+
+##################################################################################################################################################################################
+#
+#	Rules for intervalEquals and the properties representing the six primary Allen temporal relations.
+#
+##################################################################################################################################################################################
+
+#time:intervalEquals
+
+#∀T1,T2[intervalEquals(T1,T2)↔(ProperInterval(T1)∧ProperInterval(T2)∧equals(T1,T2))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalEquals;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. $this time:equals ?T2}
+						WHERE{$this time:intervalEquals ?T2}"""]].
+
+#--------------------------
+#time:intervalBefore
+
+#∀T1,T2[intervalBefore(T1,T2)↔(ProperInterval(T1)∧ProperInterval(T2)∧before(T1,T2))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalBefore;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. $this time:before ?T2}
+						WHERE{$this time:intervalBefore ?T2}"""]].
+
+#--------------------------
+#time:intervalMeets
+
+#∀T1,T2,tb,te[(intervalMeets(T1,T2)∧hasEnd(T1,te)∧hasBeginning(T2,tb))→(ProperInterval(T1)∧ProperInterval(T2)∧equals(tb,te))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalMeets;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. ?tb time:equals ?te}
+						WHERE{$this time:intervalMeets ?T2. $this time:hasEnd ?te. ?T2 time:hasBeginning ?tb}"""]].
+
+#--------------------------
+#time:intervalOverlaps
+
+#∀T1,T2,tb1,te1,tb2,te2[(intervalOverlaps(T1,T2)∧hasBeginning(T1,tb1)∧hasEnd(T1,te1)∧hasBeginning(T2,tb2)∧hasEnd(T2,te2))→
+#						(ProperInterval(T1)∧ProperInterval(T2)∧before(tb1,tb2)∧before(tb2,te1)∧before(te1,te2))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalOverlaps;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. ?tb1 time:before ?tb2. ?tb2 time:before ?te1. ?te1 time:before ?te2}
+						WHERE{$this time:intervalOverlaps ?T2. $this time:hasBeginning ?tb1. $this time:hasEnd ?te1. 
+							  ?T2 time:hasBeginning ?tb2. ?T2 time:hasEnd ?te2}"""]].
+
+#--------------------------
+#time:intervalStarts
+
+#∀T1,T2,tb1,te1,tb2,te2[(intervalStarts(T1,T2)∧hasBeginning(T1,tb1)∧hasEnd(T1,te1)∧hasBeginning(T2,tb2)∧hasEnd(T2,te2))→
+#						(ProperInterval(T1)∧ProperInterval(T2)∧equals(tb1,tb2)∧before(te1,te2))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalStarts;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. ?tb1 time:equals ?tb2. ?te1 time:before ?te2}
+						WHERE{$this time:intervalStarts ?T2. $this time:hasBeginning ?tb1. $this time:hasEnd ?te1. 
+							  ?T2 time:hasBeginning ?tb2. ?T2 time:hasEnd ?te2}"""]].
+
+#--------------------------
+#time:intervalDuring
+
+#∀T1,T2,tb1,te1,tb2,te2[(intervalDuring(T1,T2)∧hasBeginning(T1,tb1)∧hasEnd(T1,te1)∧hasBeginning(T2,tb2)∧hasEnd(T2,te2))→
+# 					    (ProperInterval(T1)∧ProperInterval(T2)∧before(tb2,tb1)∧before(te1,te2))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalDuring;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. ?tb2 time:before ?tb1. ?te1 time:before ?te2}
+						WHERE{$this time:intervalDuring ?T2. $this time:hasBeginning ?tb1. $this time:hasEnd ?te1. 
+							  ?T2 time:hasBeginning ?tb2. ?T2 time:hasEnd ?te2}"""]].
+
+#--------------------------
+#time:intervalFinishes
+
+#∀T1,T2,tb1,te1,tb2,te2[(intervalFinishes(T1,T2)∧hasBeginning(T1,tb1)∧hasEnd(T1,te1)∧hasBeginning(T2,tb2)∧hasEnd(T2,te2))→
+#						(ProperInterval(T1)∧ProperInterval(T2)∧equals(te1,te2)∧before(tb2,tb1))]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:intervalFinishes;
+	sh:rule[rdf:type sh:SPARQLRule; sh:prefixes :PrefixesEmbeddedSPARQLRules;
+		sh:construct """CONSTRUCT{$this a time:ProperInterval. ?T2 a time:ProperInterval. ?te1 time:equals ?te2. ?tb2 time:before ?tb1}
+						WHERE{$this time:intervalFinishes ?T2. $this time:hasBeginning ?tb1. $this time:hasEnd ?te1. 
+							  ?T2 time:hasBeginning ?tb2. ?T2 time:hasEnd ?te2}"""]].
+

@@ -1,0 +1,18 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This example applies the axioms defined in Table 2 of the paper, specifically the algebraic properties of time:equals and time:before. 
+#The four time:TemporalEntity instances form a cycle via the time:before property, and are therefore all reported as invalid.
+#Note that this invalid information also triggers further invalidations.
+abox:te1 time:before abox:te2.
+abox:te2 time:equals abox:te3.
+abox:te3 time:equals abox:te4.
+abox:te4 time:before abox:te1.

@@ -1,0 +1,24 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This example illustrates the "zig-zag" pattern described in Subsection 6.1 of the paper.
+#As explained in (22), (23), and (24), abox:te1 through abox:te7 are all inferred to be equal.
+#The knowledge graph is then detected as invalid because abox:te1 and abox:te7 are associated with different xsd:dateTime values.
+#Note that this invalid information also triggers further invalidations.
+
+abox:te1 time:inXSDDateTime "2025-01-01T00:00:00Z"^^xsd:dateTime.
+abox:te1 time:hasEnd abox:te2. 
+abox:te3 time:hasEnd abox:te2. abox:te3 rdf:type time:Instant.
+abox:te3 time:hasEnd abox:te4. 
+abox:te5 time:hasEnd abox:te4. abox:te5 rdf:type time:Instant.
+abox:te5 time:hasEnd abox:te6. 
+abox:te7 time:hasEnd abox:te6.
+abox:te7 time:inXSDDateTime "2024-01-01T00:00:00Z"^^xsd:dateTime.

@@ -1,0 +1,18 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This final example is about infinite intervals, which we propose to represent via the classes minusInfinite and plusInfinite.
+#This is example (36) on the paper at the end of Section 7. The knowledge graph below is invalid for two reasons: 
+# - The instant abox:tb, whose value is +infinite, is set at the beginning of the time:TemporalEntity abox:T. This is not possible: a time:TemporalEntity cannot start at +infinite.
+# - The instant abox:tb, whose value is +infinite, occurs before the time:TemporalEntity abox:t. This is not possible: +infinite cannot be lower of anything.
+abox:tb rdf:type time:plusInfinite. 
+abox:T time:hasBeginning abox:tb. 
+abox:tb time:before abox:t.

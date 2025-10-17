@@ -1,0 +1,24 @@
+# baseURI: http://www.timeontologysampleabox.org
+
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix abox: <http://www.timeontologysampleabox.org#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+
+#This example corresponds to the knowledge graph in Figure 5, Subsection 6.1 of the paper.
+#As explained in the paper, right below the figure, a cyclic path of time:before properties is inferred among abox:i1, abox:i4, and abox:i5,
+#causing the knowledge graph to be correctly identified as invalid.
+#Note that this invalid information also triggers further invalidations.
+
+abox:i1 time:before abox:i2.
+abox:i2 time:equals abox:i3.
+abox:te1 time:hasBeginning abox:i3.
+abox:te1 time:hasEnd abox:i4.
+abox:te1 time:before abox:te2.
+abox:te2 time:hasBeginning abox:i5.
+abox:te2 time:hasEnd abox:i6.
+abox:i6 time:equals abox:i1.

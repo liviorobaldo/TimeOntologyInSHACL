@@ -1,0 +1,157 @@
+@prefix : <http://robaldoandbatsakis/timeontologyshacl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix time: <http://www.w3.org/2006/time#> .
+
+#This individual defines all prefixes used in at least one sh:sparql clauses of the SHACL shapes below.
+:PrefixesEmbeddedSHsparql sh:declare 
+	[sh:prefix"rdf";sh:namespace"http://www.w3.org/1999/02/22-rdf-syntax-ns#"^^xsd:anyURI],
+	[sh:prefix"xsd";sh:namespace"http://www.w3.org/2001/XMLSchema#"^^xsd:anyURI],
+	[sh:prefix"time";sh:namespace"http://www.w3.org/2006/time#"^^xsd:anyURI],
+	[sh:prefix"";sh:namespace"http://robaldoandbatsakis/timeontologyshacl#"^^xsd:anyURI].
+
+
+##################################################################################################################################################################################
+#
+#	SHACL shapes on the datatype property time:inXSDDateTime.
+#	The shapes below check that:
+#		- The objects of inXSDDateTime are indeed values of the datatype xsd:dateTime.
+#		- These xsd:dateTime values always specify the timezone.
+#		- If a time:Instant occurs as subject of two different instances of the datatype property inXSDDateTime, the xsd:dateTime 
+#		  values as object of these two instances are the same.
+#
+##################################################################################################################################################################################
+
+#SHACL shapes that verify all time:inXSDDateTime datatype properties have values of type xsd:dateTime and include a timezone.
+[rdf:type sh:NodeShape ;
+    sh:targetSubjectsOf time:inXSDDateTime ;
+	sh:property[sh:path time:inXSDDateTime;
+				sh:datatype xsd:dateTime;
+				sh:message "Invalid datatype: xsd:dateTime is required"]].
+[rdf:type sh:NodeShape ;
+    sh:targetSubjectsOf time:inXSDDateTime ;
+	sh:property[sh:path time:inXSDDateTime;
+				sh:pattern "(Z|(\\+|-)[0-9]{2}:[0-9]{2})$";
+				sh:message "Invalid datatype: it does not specify the timezone."]].
+
+#SHACL shape ensuring that all time:inXSDDateTime values defined for the same time:Instant are identical, i.e., that each instant has at most one associated xsd:dateTime value.
+[rdf:type sh:NodeShape;
+    sh:targetSubjectsOf time:inXSDDateTime;
+    sh:property[sh:path time:inXSDDateTime;
+				sh:maxCount 1;
+				sh:message "Invalid Instant: multiple xsd:dateTime values are associated with this node."]].
+				
+
+##################################################################################################################################################################################
+#
+#	SHACL shapes on the properties time:equals and time:before with respect to the property time:inXSDDateTime.
+#
+##################################################################################################################################################################################
+
+#SHACL shape that checks whether two instants connected by the property time:equals, and each associated with an xsd:dateTime value, have identical xsd:dateTime values.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:inXSDDateTime;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?dt1 ?dt2
+					 WHERE{$this time:equals ?i2. FILTER($this!=?i2). $this time:inXSDDateTime ?dt1. ?i2 time:inXSDDateTime ?dt2. FILTER(?dt1!=?dt2)}""";
+		sh:message "Invalid Instant {$this}: this instant is declared equal to another instant, but the two instants have different values, {?dt1} and {?dt2}."]].
+
+#SHACL shape that verifies whether two instants connected by the property time:before, each associated with an xsd:dateTime value, have dateTime values that respect 
+#the temporal order imposed by time:before.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:inXSDDateTime;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?dt1 ?dt2
+					 WHERE{$this time:before ?i2. FILTER($this!=?i2). $this time:inXSDDateTime ?dt1. ?i2 time:inXSDDateTime ?dt2. FILTER(?dt1>=?dt2)}""";
+		sh:message "Invalid Instant {$this}: this instant is declared to occur before another instant, but it occurs at {?dt1} while the other occurs at {?dt2}."]].
+
+#SHACL shape ensuring that the end of a time:TemporalEntity does not occur before its beginning, when both endpoints are associated with xsd:dateTime values.
+#∀T,tb,te[(TemporalEntity(T)∧hasBeginning(T,tb)∧hasEnd(T,te)) → ¬before(te,tb)]
+[rdf:type sh:NodeShape;
+	sh:targetClass time:TemporalEntity;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this
+					 WHERE{$this time:hasBeginning ?tb. $this time:hasEnd ?te.
+						   ?tb time:inXSDDateTime ?dtb. ?te time:inXSDDateTime ?dte. FILTER(?dte<?dtb)}""";
+		sh:message "Invalid temporal entity {$this}: it ends before it begins."]].
+
+
+##################################################################################################################################################################################
+#
+#	SHACL shapes on the property time:before (in fact, only one, enforcing anti-reflexivity of time:before)
+#
+##################################################################################################################################################################################
+
+#SHACL shape verifying that the property time:before is anti-reflexive, i.e., it cannot be connected with time:before to itself.
+#∀T[¬before(T,T)]
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this
+					 WHERE{$this time:before $this}""";
+		sh:message "Invalid triple '{$this} time:before {$this}': time:before is anti-reflexive."]].
+
+
+##################################################################################################################################################################################
+#
+#	SHACL shapes on time:minusInfinite and time:plusInfinite
+#	NB: These classes are not part of the current official Time Ontology vocabulary!!! We introduced them to show how we can represent infinite intervals in our approach.
+#
+##################################################################################################################################################################################
+
+time:minusInfinite rdf:type rdfs:Class.
+time:plusInfinite rdf:type rdfs:Class.
+
+#A knowledge graph is invalid if it contains an instant that belongs to both classes minusInfinite and plusInfinite, or to only one of them while also being associated with
+#an xsd:dateTime value. This enforces that an instant cannot simultaneously be −∞ and +∞, nor can it be either of these while also being associated with a finite value.
+[rdf:type sh:NodeShape;
+	sh:targetClass time:minusInfinite;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this
+					 WHERE{{$this a time:plusInfinite}UNION{$this time:inXSDDateTime ?dt}}""";
+		sh:message "Invalid Instant {$this}: this instant's value is both -infinite and either +infinite or a finite xsd:dateTime value."]].
+[rdf:type sh:NodeShape;
+	sh:targetClass time:plusInfinite;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this
+					 WHERE{{$this a time:minusInfinite}UNION{$this time:inXSDDateTime ?dt}}""";
+		sh:message "Invalid Instant {$this}: this instant's value is both +infinite and either -infinite or a finite xsd:dateTime value."]].
+
+#A knowledge graph is invalid if it contains an instant that belongs to the class minusInfinite and also occurs as the object of hasEnd, or it belongs to the class 
+#plusInfinite and also occurs as the object of hasBeginning. This enforces that temporal entities cannot begin at +∞ or end at −∞.
+[rdf:type sh:NodeShape;
+	sh:targetClass time:minusInfinite;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?T WHERE{?T time:hasEnd $this. FILTER((?T!=$this)&&!EXISTS{?T time:equals $this})}""";
+		sh:message "Invalid TemporalEntity {?T}: it ends at -infinite."]].
+[rdf:type sh:NodeShape;
+	sh:targetClass time:plusInfinite;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?T WHERE{?T time:hasBeginning $this. FILTER((?T!=$this)&&!EXISTS{?T time:equals $this})}""";
+		sh:message "Invalid TemporalEntity {?T}: it begins at +infinite."]].
+
+#A positive or negative infinite instant can only be equal to another infinite instant of the same sign. 
+#If it is equal to an infinite instant of the opposite sign or to an instant associated with a specific xsd:dateTime value, it is invalid.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:equals;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this ?t 
+					 WHERE{$this time:equals ?t.
+						   {$this a time:minusInfinite {?t a time:plusInfinite}UNION{?t time:inXSDDateTime ?dt}}UNION
+						   {$this a time:plusInfinite {?t a time:minusInfinite}UNION{?t time:inXSDDateTime ?dt}}}""";
+		sh:message "Invalid Instant {$this}: it is associated with an infinite value but is also equal to another instant with a value incompatible with this infinite value."]].
+
+#For the property time:before, we ensure that its subject is not +∞ (nothing can occur after +∞, not even +∞ itself) and that its object is not -∞, for the same dual reason.
+[rdf:type sh:NodeShape;
+	sh:targetSubjectsOf time:before;
+	sh:sparql[sh:prefixes :PrefixesEmbeddedSHsparql;
+		sh:select """SELECT $this
+					 WHERE{{$this a time:plusInfinite}UNION{$this time:before ?t. ?t a time:minusInfinite}}""";
+		sh:message "Invalid Instant $this: it either is +infinite and another instant occurs after it, or it occurs before another instant associated with -infinite."]].
+
+
+
+
+
