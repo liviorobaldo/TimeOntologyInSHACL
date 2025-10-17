@@ -4,15 +4,11 @@ This repository contains the SHACL shapes (file <i>SHACLshapesTimeOntology.shacl
 </p>
 
 <p align="justify">
-The shapes and rules have been designed based on the version of the <a href="https://www.w3.org/TR/owl-time">Time Ontology</a> retrieved on February 20, 2025. However, future versions of the Time Ontology may not be compatible with the implementation proposed here.  
+The shapes and rules have been designed based on the version of the <a href="https://www.w3.org/TR/owl-time">Time Ontology</a> retrieved on September 10, 2025. However, future versions of the Time Ontology may not be compatible with the implementation proposed here.  
 </p>
 
 <p align="justify">
-The current axiomatization of the Time Ontology is expressed in <a href="https://www.w3.org/OWL">OWL</a>. Since this work focuses on <a href="https://www.w3.org/TR/shacl">SHACL</a> rather than OWL, the repository separates the RDF model (stored in <i>TimeOntologySHACL/time.rdf</i>) from the OWL axioms (stored in <i>TimeOntologySHACL/owlAxioms.owl</i>).
-</p>
-
-<p align="justify">
-Users who wish to apply the OWL axioms can do so with <a href="http://www.hermit-reasoner.com">HermiT</a> using the file <i>InferThroughOWL.java</i>, whereas the following Java files are provided to execute the SHACL shapes and SHACL-SPARQL rules on <i>TimeOntologySHACL/time.rdf</i>:
+The following Java files are provided to execute the SHACL shapes and SHACL-SPARQL rules on <i>TimeOntologySHACL/time.rdf</i>:
 <ul>
   <li><i>InferAndValidateThroughSHACL.java</i>, which executes the shapes and the rules on the ABox in the file <i>TimeOntologySHACL/ABox.rdf</i> and prints the result of the validation. The user is invited to add to the file <i>ABox.rdf</i> new RDF triples for further testing and "playing with" the proposed shapes and rules.</li>
   <li><i>SyntheticDatasetGenerators/generateAllensCompositionTableOn2ProperIntervals.java</i>, which generates the composition table of Allen's temporal algebra and prints it in the output 
