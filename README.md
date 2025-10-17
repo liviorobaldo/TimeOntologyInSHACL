@@ -8,13 +8,9 @@ The shapes and rules have been designed based on the version of the <a href="htt
 </p>
 
 <p align="justify">
-The following Java files are provided to execute the SHACL shapes and SHACL-SPARQL rules on <i>TimeOntologySHACL/time.rdf</i>:
+The following Java file is provided to execute the SHACL shapes and SHACL-SPARQL rules on <i>time-ontology-retrieved-10.09.2025.ttl</i>:
 <ul>
   <li><i>InferAndValidateThroughSHACL.java</i>, which executes the shapes and the rules on the ABox in the file <i>TimeOntologySHACL/ABox.rdf</i> and prints the result of the validation. The user is invited to add to the file <i>ABox.rdf</i> new RDF triples for further testing and "playing with" the proposed shapes and rules.</li>
-  <li><i>SyntheticDatasetGenerators/generateAllensCompositionTableOn2ProperIntervals.java</i>, which generates the composition table of Allen's temporal algebra and prints it in the output 
-    file <i>AllenIntervalAlgebraCompositionTable.txt</i>.</li>
-  <li><i>SyntheticDatasetGenerators/generateAllensTemporalRelationsOn2ProperIntervals.java</i>, which generates and validates all possible knowledge graphs involving two properties 
-    denoting one of Allen's temporal relations and connecting the same pair of proper intervals. The results of the validation are then written in the output file <i>TimeOntologySHACL/validationResults.txt</i>.</li>
 </ul>
 The Java files might be compiled and run on Windows through the files <i>compile.bat</i> and <i>run.bat</i> respectively.
 </p>
