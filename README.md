@@ -4,7 +4,7 @@ This repository contains the SHACL shapes (<i>SHACLshapesTimeOntology.shacl</i>)
 </p>
 
 <p align="justify">
-The shapes and rules were designed based on the version of the <a href="https://www.w3.org/TR/owl-time">Time Ontology</a> retrieved on September 10, 2025. However, future updates to the Time Ontology may not be fully compatible with the implementation provided here.
+The shapes and rules were designed based on the version of the <a href="https://www.w3.org/TR/owl-time">Time Ontology</a> retrieved on September 10, 2025. Future updates to the Time Ontology may not be fully compatible with the implementation provided here.
 </p>
 
 <p align="justify">
